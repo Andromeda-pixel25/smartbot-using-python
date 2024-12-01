@@ -8,6 +8,9 @@ model = genai.GenerativeModel('gemini-pro')
 messages = model.start_chat()
 
 st.title("ZypherAi")
+st.subheader("Welcome to ZypherAi ")
+image="https://github.com/Andromeda-pixel25/smartbot-using-python/blob/main/letter-z%20(1).png?raw=true"
+st.logo(image,size="large")
 
 def role_to_streamlit(role):
   if role == "model":
