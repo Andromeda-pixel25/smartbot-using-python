@@ -8,7 +8,8 @@ model = genai.GenerativeModel('gemini-pro')
 messages = model.start_chat()
 
 st.title("ZypherAi")
-st.subheader("Welcome to ZypherAi ")
+st.subheader("Your Assistant Awaits",divider="grey")
+st.markdown("Powered by Google Generative AI for Seamless Conversations")
 image="https://github.com/Andromeda-pixel25/smartbot-using-python/blob/main/letter-z%20(1).png?raw=true"
 st.logo(image,size="large")
 
