@@ -7,7 +7,7 @@ model = genai.GenerativeModel('gemini-pro')
 
 messages = model.start_chat()
 
-st.title("SMARTBOT")
+st.title("ZypherAi")
 
 def role_to_streamlit(role):
   if role == "model":
