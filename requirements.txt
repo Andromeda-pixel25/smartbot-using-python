@@ -3,4 +3,4 @@ google-generativeai
 pyttsx
 speech_recognition
 pyaudio
-os
+
