@@ -1,6 +1,8 @@
 import streamlit as st
 import os
 import google.generativeai as genai
+import speech_recognition as sr
+import pyttsx3
 
 genai.configure(api_key="AIzaSyA7V6N800cWrvaW2hlgHazi62i4Gh-idZk")
 model = genai.GenerativeModel('gemini-pro')
