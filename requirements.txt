@@ -5,3 +5,4 @@ sounddevice
 pyttsx3
 streamlit_mic_recorder
 audio_recorder_streamlit
+gtts
