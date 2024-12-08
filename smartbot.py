@@ -1,10 +1,10 @@
 import streamlit as st
 import os
 import google.generativeai as genai
-import speech_recognition as sr
 import sounddevice as sd
 import pyttsx3 as engine
 from streamlit_mic_recorder import mic_recorder, speech_to_text
+from audio_recorder_streamlit import audio_recorder
 
 genai.configure(api_key="AIzaSyA7V6N800cWrvaW2hlgHazi62i4Gh-idZk")
 model = genai.GenerativeModel('gemini-pro')
@@ -27,31 +27,7 @@ def list_input_devices():
         st.error(f"Error detecting input devices: {e}")
         return []
  
-def listen():
-   recognizer = sr.Recognizer()
-   input_devices = list_input_devices()
-   if not input_devices:
-        st.error("No input devices (microphones) found. Please connect a microphone.")
-        return None  # Skip listening if no devices are found
-   
-   with sr.Microphone() as source:
-      st.info("Listening.....")
-      try:
-         audio=recognizer.listen(source,timeout=5) #listen to input with 5sec timeout
-         command=recognizer.recognize_google(audio)
-         st.success(f"recognized: {command}")
-         return command
-      except sr.UnknownValueError:
-         st.error("Sorry, I couldn't understand that.")
-         return None
-      except sr.RequestError:
-          st.error("Voice recognition service is unavailable.")
-          return None 
-      except OSError as e:
-        # Handle case where no input device is available
-        st.error(f"Error: {e}. No microphone detected or available.")
-        return None
-      
+
 def speak(text):
    engine.say(text)
    engine.runAndWait()
@@ -80,36 +56,40 @@ for message in st.session_state.messages.history:
   with st.chat_message(role):
     st.markdown(text)
 
-  
-prompt_text=st.chat_input("ask away..")
-voice_button=st.button("voice")
+prompt_text=st.chat_input("Ask away...")
 
-if voice_button:
-  audio_data=mic_recorder()
-  prompt_voice = audio_data
-  if audio_data is not None and hasattr(audio_data, 'text'):
-    prompt_voice = audio_data.text
-    st.chat_message("user").markdown(prompt_voice)
-    response = st.session_state.messages.send_message(prompt_voice)#sending input to genai
-    with st.chat_message("assistant"):
-        st.markdown(response.text)
-        speak(response.text)
-else:
-    prompt_voice=None
+# Create a container for the microphone and audio recording
+footer_container = st.container()
+with footer_container:
+    audio_bytes = audio_recorder()
 
-
-          
 if prompt_text:
   st.chat_message("user").markdown(prompt_text)
   response = st.session_state.messages.send_message(prompt_text) 
   with st.chat_message("assistant"):
       st.markdown(response.text)
-      
-elif prompt_voice:
-   st.chat_message("user").markdown(prompt_voice)
-   response = st.session_state.messages.send_message(prompt_voice)
-   with st.chat_message("assistant"):
-      st.markdown(response.text)
-      speak(response.text) 
+#for voice input      
+if audio_bytes:
+    with st.spinner("Transcribing..."):
+        # Write the audio bytes to a temporary file
+        webm_file_path = "temp_audio.mp3"
+        with open(webm_file_path, "wb") as f:
+            f.write(audio_bytes)
+
+        # Convert the audio to text using the speech_to_text function
+        transcript = speech_to_text(webm_file_path)
+        if transcript:
+            st.session_state.messages.append({"role": "user", "content": transcript})
+            with st.chat_message("user"):
+                st.write(transcript)
+            os.remove(webm_file_path)   
+
+            response=st.session_state.messages.send_message(transcript)
+            with st.chat_message("assistant"):
+               st.markdown(response.text)
+            speak(response.text)
+        else:
+           st.error("Could not transcribe the audio. Please try again.")
+       
 
 
