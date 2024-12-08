@@ -1,6 +1,7 @@
 streamlit
 google-generativeai
 SpeechRecognition==3.11.0
+sounddevice
 pyttsx3
 streamlit_mic_recorder
 audio_recorder_streamlit
