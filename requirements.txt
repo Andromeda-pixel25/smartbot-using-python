@@ -5,4 +5,4 @@ pyttsx3
 streamlit_mic_recorder
 audio_recorder_streamlit
 gtts
-playsound
+playsound==1.3.0
