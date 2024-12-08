@@ -4,6 +4,7 @@ import google.generativeai as genai
 import speech_recognition as sr
 import sounddevice as sd
 import pyttsx3 as engine
+from streamlit_mic_recorder import mic_recorder, speech_to_text
 
 genai.configure(api_key="AIzaSyA7V6N800cWrvaW2hlgHazi62i4Gh-idZk")
 model = genai.GenerativeModel('gemini-pro')
@@ -32,8 +33,7 @@ def listen():
    if not input_devices:
         st.error("No input devices (microphones) found. Please connect a microphone.")
         return None  # Skip listening if no devices are found
-   st.write("Available input devices:")
-   st.write(input_devices)
+   
    with sr.Microphone() as source:
       st.info("Listening.....")
       try:
@@ -85,9 +85,17 @@ prompt_text=st.chat_input("ask away..")
 voice_button=st.button("voice")
 
 if voice_button:
-  prompt_voice=listen()
+  audio_data=mic_recorder()
+  prompt_voice = audio_data
+  if audio_data is not None and hasattr(audio_data, 'text'):
+    prompt_voice = audio_data.text
+    st.chat_message("user").markdown(prompt_voice)
+    response = st.session_state.messages.send_message(prompt_voice)#sending input to genai
+    with st.chat_message("assistant"):
+        st.markdown(response.text)
+        speak(response.text)
 else:
-   prompt_voice=None
+    prompt_voice=None
 
 
           
