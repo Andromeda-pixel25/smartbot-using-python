@@ -5,9 +5,11 @@ import pyttsx3 as engine
 from streamlit_mic_recorder import mic_recorder, speech_to_text
 from audio_recorder_streamlit import audio_recorder
 
+# Initialize Google Generative AI
 genai.configure(api_key="AIzaSyA7V6N800cWrvaW2hlgHazi62i4Gh-idZk")
 model = genai.GenerativeModel('gemini-pro')
 
+# Initialize messages
 messages = model.start_chat()
 
 st.title("ZypherAi")
@@ -16,16 +18,19 @@ st.markdown("Powered by Google Generative AI for Seamless Conversations")
 image = "https://github.com/Andromeda-pixel25/smartbot-using-python/blob/main/letter-z%20(1).png?raw=true"
 st.image(image)
 
+# Text to Speech function
 def speak(text):
     engine.say(text)
     engine.runAndWait()
 
+# Mapping the role to streamlit format
 def role_to_streamlit(role):
     if role == "model":
         return "assistant"
     else:
         return role
 
+# Initialize chat history in session state
 if "messages" not in st.session_state:
     st.session_state.messages = model.start_chat(history=[])
 
@@ -33,7 +38,7 @@ if "messages" not in st.session_state:
 for message in st.session_state.messages.history:
     role = role_to_streamlit(getattr(message, "role"))
     text = ""
-    parts = getattr(message, "parts", None)  # none is specified to run even if nothing exists
+    parts = getattr(message, "parts", None)  # Check if parts exist
     if parts:
         for part in parts:
             if hasattr(part, "text"):  # Check if `text` attribute exists
@@ -49,9 +54,10 @@ footer_container = st.container()
 with footer_container:
     audio_bytes = audio_recorder()
 
+# If user provides text input
 if prompt_text:
     st.chat_message("user").markdown(prompt_text)
-    response = st.session_state.messages.send_message(prompt_text)
+    response = st.session_state.messages.send_message(prompt_text) 
     with st.chat_message("assistant"):
         st.markdown(response.text)
 
@@ -66,7 +72,8 @@ if audio_bytes:
         # Convert the audio to text using the speech_to_text function
         transcript = speech_to_text(webm_file_path)
         if transcript:
-            st.session_state.messages.append({"role": "user", "content": transcript})
+            # Send transcribed text as a message
+            st.session_state.messages.send_message(transcript)
             with st.chat_message("user"):
                 st.write(transcript)
             os.remove(webm_file_path)
