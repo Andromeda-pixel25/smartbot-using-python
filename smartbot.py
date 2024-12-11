@@ -11,7 +11,15 @@ model = genai.GenerativeModel('gemini-pro')
 
 # Initialize pyttsx3 for text-to-speech
 engine.init()
+def list_microphones():
+    mic_list = sr.Microphone.list_microphone_names()
+    print("Available Microphones:", mic_list)
+    return mic_list
 
+mic_list = list_microphones()
+if not mic_list:
+    print("No microphones found!")
+    
 # Function to handle speaking text
 def speak(text):
     engine.say(text)
