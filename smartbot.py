@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import google.generativeai as genai
-import pyttsx3 as engine
+import pyttsx3
 from streamlit_mic_recorder import mic_recorder, speech_to_text
 from audio_recorder_streamlit import audio_recorder
 
@@ -12,6 +12,9 @@ model = genai.GenerativeModel('gemini-pro')
 # Initialize messages
 messages = model.start_chat()
 
+# Initialize the pyttsx3 engine
+engine = pyttsx3.init()
+
 st.title("ZypherAi")
 st.markdown("_________________________________________________________________________________")
 st.markdown("Powered by Google Generative AI for Seamless Conversations")
@@ -20,7 +23,7 @@ st.image(image)
 
 # Text to Speech function
 def speak(text):
-    engine.say(text)
+    engine.say(text)  # Use the 'say' method correctly
     engine.runAndWait()
 
 # Mapping the role to streamlit format
@@ -81,6 +84,6 @@ if audio_bytes:
             response = st.session_state.messages.send_message(transcript)
             with st.chat_message("assistant"):
                 st.markdown(response.text)
-            speak(response.text)
+            speak(response.text)  # Speak the response text
         else:
             st.error("Could not transcribe the audio. Please try again.")
